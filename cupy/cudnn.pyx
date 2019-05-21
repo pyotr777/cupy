@@ -15,6 +15,11 @@ import cupy
 from cupy.core import internal
 from cupy.cuda import cudnn as py_cudnn
 
+# DEBUG CODE
+import logging
+import debug_conf
+import time
+# DEBUG CODE END
 
 cdef int _cudnn_version = cudnn.getVersion()
 cdef _thread_local = threading.local()
@@ -635,6 +640,13 @@ def convolution_forward(
                 max_workspace_size)
             workspace_size = max_workspace_size
 
+        # DEBUG CODE
+        if debug_conf.debug and debug_conf.log_convolution_forward:
+            logging.debug("%s; %s; %s","cudnn.pyx:convolution_forward","x shape",x.shape)
+            logging.debug("%s; %s; %s","cudnn.pyx:convolution_forward","y shape",y.shape)
+            logging.debug("%s; %s; %s","cudnn.pyx:convolution_forward","ConvolutionFWDalgo",algo)
+        # DEBUG CODE END
+
         # TODO(okuta): allocate best size memory
         workspace = memory.alloc(max_workspace_size)
 
@@ -662,6 +674,15 @@ def convolution_backward_filter(
         core.ndarray x, core.ndarray gy, core.ndarray gW,
         tuple pad, tuple stride, tuple dilation, int groups, *,
         bint deterministic, bint auto_tune, str tensor_core):
+
+    # DEBUG CODE
+    # Log x and gy shapes
+    if debug_conf.debug:
+        if debug_conf.log_convolution_backward:
+            logging.debug("%s; %s; %s","cudnn.pyx:convolution_backward_filter","x shape",x.shape)
+            logging.debug("%s; %s; %s","cudnn.pyx:convolution_backward_filter","y shape",gy.shape)
+        # DEBUG CODE END
+
     cdef int dev_id = x.data.device.id
     assert dev_id == gy.data.device.id
     assert dev_id == gW.data.device.id
@@ -720,6 +741,14 @@ def convolution_backward_filter(
             workspace_size = max_workspace_size
         # TODO(okuta): allocate best size memory
         workspace = memory.alloc(max_workspace_size)
+
+        # DEBUG CODE
+        if debug_conf.debug:
+            if debug_conf.log_workspace:
+                logging.debug("%s; %s; %s","cudnn.pyx:convolution_backward_filter","workspace_size/max_WS_size",str(workspace_size)+"/"+str(max_workspace_size))
+            if debug_conf.log_convolution_backward:                
+                logging.debug("%s; %s; %s","cudnn.pyx:convolution_backward_filter","ConvolutionBWDFilterAlgo",algo)
+        # DEBUG CODE END
 
         cudnn.convolutionBackwardFilter_v3(
             handle, one, x_desc, x.data.ptr, gy_desc,
@@ -801,6 +830,13 @@ def convolution_backward_data(
                 cudnn.CUDNN_CONVOLUTION_BWD_DATA_SPECIFY_WORKSPACE_LIMIT,
                 max_workspace_size)
             workspace_size = max_workspace_size
+
+        # DEBUG CODE
+        if debug_conf.debug and debug_conf.log_convolution_backward_data:
+            logging.debug("%s; %s; %s","cudnn.pyx:convolution_backward_data","x shape",x.shape)
+            logging.debug("%s; %s; %s","cudnn.pyx:convolution_backward_data","y shape",y.shape)
+            logging.debug("%s; %s; %s","cudnn.pyx:convolution_backward_data","ConvolutionBWDDataAlgo",algo)
+        # DEBUG CODE END
 
         # TODO(okuta): allocate best size memory
         workspace = memory.alloc(max_workspace_size)
