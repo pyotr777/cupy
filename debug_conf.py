@@ -3,10 +3,11 @@ import logging
 import string
 
 debug = True
-log_convolution = False  # Log timings in convolution_2d.py
+log_convolution = False  # Log timings and other convolution parameters
 log_convolution_forward = True
 log_convolution_backward = True
 log_convolution_backward_data = True
+log_convolution_chainer = False # Log from Chainer
 
 wd = os.getcwd()
 logdir = os.path.join(wd, "timelogs")

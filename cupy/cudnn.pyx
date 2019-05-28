@@ -744,9 +744,9 @@ def convolution_backward_filter(
 
         # DEBUG CODE
         if debug_conf.debug:
-            if debug_conf.log_workspace:
+            if debug_conf.log_convolution:
                 logging.debug("%s; %s; %s","cudnn.pyx:convolution_backward_filter","workspace_size/max_WS_size",str(workspace_size)+"/"+str(max_workspace_size))
-            if debug_conf.log_convolution_backward:                
+            if debug_conf.log_convolution_backward:
                 logging.debug("%s; %s; %s","cudnn.pyx:convolution_backward_filter","ConvolutionBWDFilterAlgo",algo)
         # DEBUG CODE END
 
